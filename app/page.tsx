@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { Donation, MemberTag } from "@/lib/notion";
+import type { Donation, MemberTag, SiteText } from "@/lib/notion";
+import { DEFAULT_SITE_TEXT } from "@/lib/notion";
 import WaveStat from "./components/WaveStat";
 import ThemeToggle from "./components/ThemeToggle";
 
@@ -24,6 +25,7 @@ const SORTS: { id: SortMode; label: string }[] = [
 
 export default function Home() {
   const [donations, setDonations] = useState<Donation[]>([]);
+  const [siteText, setSiteText] = useState<SiteText>(DEFAULT_SITE_TEXT);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [filter, setFilter] = useState<FilterMode>("all");
@@ -43,6 +45,7 @@ export default function Home() {
           return;
         }
         setDonations(data.donations ?? []);
+        if (data.siteText) setSiteText(data.siteText);
         setStatus("ready");
       } catch (err: any) {
         if (cancelled) return;
@@ -102,11 +105,10 @@ export default function Home() {
               VOW Center · iThirst Ministry
             </p>
             <h1 className="mt-2 font-display text-3xl font-extrabold tracking-tight text-ink-900 dark:text-mist-50 sm:text-4xl">
-              Cases of Water Given
+              {siteText.header}
             </h1>
             <p className="mt-2 max-w-lg text-sm text-mist-600 dark:text-mist-400">
-              Every case logged here reaches the street through iThirst. Filter
-              by who gave, sort by what matters, and watch the total rise.
+              {siteText.subheader}
             </p>
           </div>
           <ThemeToggle />
@@ -117,6 +119,7 @@ export default function Home() {
             total={totals.allTimeTotal}
             layCases={totals.layCases}
             ministerCases={totals.ministerCases}
+            goal={siteText.goal}
           />
         </section>
 

@@ -2,21 +2,49 @@ interface WaveStatProps {
   total: number;
   layCases: number;
   ministerCases: number;
+  goal: number;
 }
 
-export default function WaveStat({ total, layCases, ministerCases }: WaveStatProps) {
+export default function WaveStat({ total, layCases, ministerCases, goal }: WaveStatProps) {
   const layShare = total > 0 ? (layCases / total) * 100 : 50;
   const ministerShare = total > 0 ? (ministerCases / total) * 100 : 50;
+  const goalPercent = goal > 0 ? Math.round((total / goal) * 100) : 0;
+  const goalProgressWidth = Math.min(100, goalPercent);
+  const goalReached = total >= goal;
 
   return (
     <div className="rounded-3xl border border-mist-200 bg-white p-6 shadow-sm dark:border-mist-700 dark:bg-mist-800 sm:p-8">
-      <div className="flex flex-col gap-1">
-        <span className="font-display text-xs font-bold uppercase tracking-[0.2em] text-mist-400 dark:text-mist-500">
-          Total cases given to date
-        </span>
-        <span className="font-display text-5xl font-extrabold tabular-nums text-ink-900 dark:text-mist-50 sm:text-6xl">
-          {total.toLocaleString()}
-        </span>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <span className="font-display text-xs font-bold uppercase tracking-[0.2em] text-mist-400 dark:text-mist-500">
+            Total cases given to date
+          </span>
+          <span className="font-display text-5xl font-extrabold tabular-nums text-ink-900 dark:text-mist-50 sm:text-6xl">
+            {total.toLocaleString()}
+          </span>
+        </div>
+
+        <div className="flex flex-col items-end gap-1 text-right">
+          <span className="font-display text-xs font-bold uppercase tracking-[0.2em] text-mist-400 dark:text-mist-500">
+            {goalReached ? "Goal reached" : "Goal"}
+          </span>
+          <span className="font-display text-2xl font-bold tabular-nums text-steel-600 dark:text-steel-300">
+            {goalPercent}%{" "}
+            <span className="text-sm font-medium text-mist-400 dark:text-mist-500">
+              of {goal.toLocaleString()}
+            </span>
+          </span>
+        </div>
+      </div>
+
+      {/* Goal progress */}
+      <div className="mt-5">
+        <div className="h-2.5 w-full overflow-hidden rounded-full bg-mist-100 dark:bg-mist-900/60">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-wave-light to-steel-500 transition-[width] duration-700 ease-out"
+            style={{ width: `${goalProgressWidth}%` }}
+          />
+        </div>
       </div>
 
       {/* Signature element: a filling water channel, split by who gave */}

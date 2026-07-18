@@ -25,9 +25,33 @@ Schema:
 | `Tags`        | Select | `Lay Member` or `Minister`          |
 | `Date Given`  | Date   | Optional                            |
 | `Notes`       | Text   | Optional                            |
+| `Entry Type`  | Select | `Donation` or `Site Text`           |
+| `Header`      | Text   | Only used on the `Site Text` row    |
+| `Subheader`   | Text   | Only used on the `Site Text` row    |
+| `Goal`        | Number | Only used on the `Site Text` row \u2014 the case-count goal shown in the progress bar |
 
-It's pre-loaded with 3 sample rows so you can confirm the site works —
-delete them once you add real entries.
+It's pre-loaded with 3 sample donation rows so you can confirm the site
+works — delete them once you add real entries.
+
+### Editing the page header from Notion
+
+One row, titled **"Site Text — do not delete"**, has `Entry Type` set to
+`Site Text` instead of `Donation`. Its `Header` and `Subheader` fields are
+exactly what shows at the top of the site:
+
+- **Header** → "Cases of Water Given"
+- **Subheader** → "Every case logged here reaches the street through
+  iThirst. Filter by who gave, sort by what matters, and watch the total
+  rise."
+- **Goal** → `150` — the target shown in the progress bar under the total.
+  Set it to whatever the current campaign goal is; the bar and percentage
+  update automatically.
+
+Edit those two fields any time and the live site picks it up within about
+60 seconds — no redeploy needed. This row is excluded from the donation
+list and totals automatically, since the app filters by `Entry Type`.
+Just don't change its `Entry Type` or delete the row, or the site falls
+back to its built-in default text.
 
 ## 2. Connect Notion to this app
 
