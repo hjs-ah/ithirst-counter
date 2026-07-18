@@ -2,6 +2,7 @@ interface WaveStatProps {
   total: number;
   layCases: number;
   ministerCases: number;
+  layLabel: string;
   goal: number;
   casesGivenAway: number;
 }
@@ -10,6 +11,7 @@ export default function WaveStat({
   total,
   layCases,
   ministerCases,
+  layLabel,
   goal,
   casesGivenAway,
 }: WaveStatProps) {
@@ -78,7 +80,7 @@ export default function WaveStat({
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-mist-500 dark:text-mist-400">
-          <LegendDot color="bg-wave-DEFAULT" label="Lay members" value={layCases} />
+          <LegendDot color="bg-wave-DEFAULT" label={layLabel} value={layCases} />
           <LegendDot color="bg-wave-dark" label="Ministers" value={ministerCases} />
         </div>
       </div>

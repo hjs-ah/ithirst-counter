@@ -1,12 +1,16 @@
 import { Client } from "@notionhq/client";
 
-export type MemberTag = "Lay Member" | "Minister";
+// The non-Minister tag text is whatever is typed in Notion (e.g. "Lay
+// Member", "Member", "Volunteer") — the app doesn't hardcode it. "Minister"
+// is the one fixed value the filters and totals key off of.
+export type MemberTag = string;
 
 export interface Donation {
   id: string;
   name: string;
   cases: number;
   tag: MemberTag;
+  isMinister: boolean;
   dateGiven: string | null;
   notes: string;
 }
@@ -16,6 +20,7 @@ export interface SiteText {
   subheader: string;
   goal: number;
   casesGivenAway: number;
+  logoUrl: string | null;
 }
 
 export const DEFAULT_SITE_TEXT: SiteText = {
@@ -24,6 +29,7 @@ export const DEFAULT_SITE_TEXT: SiteText = {
     "Every case logged here reaches the street through iThirst. Filter by who gave, sort by what matters, and watch the total rise.",
   goal: 150,
   casesGivenAway: 0,
+  logoUrl: null,
 };
 
 function getClient() {
@@ -49,6 +55,11 @@ function getClient() {
  *   - Entry Type  (select: "Donation" | "Site Text")
  *   - Header      (rich text)  — only used on the "Site Text" row
  *   - Subheader   (rich text)  — only used on the "Site Text" row
+ *   - Goal        (number)     — only used on the "Site Text" row
+ *   - Cases Given Away (number) — only used on the "Site Text" row
+ *   - Logo        (files)      — only used on the "Site Text" row; upload
+ *                                an image here to override the bundled
+ *                                default brand mark
  *
  * A single row with Entry Type = "Site Text" holds the editable page
  * header/subheader so it can live in the same table without polluting
@@ -93,6 +104,11 @@ export async function getIThirstData(): Promise<{
           .join("");
         const goal = props?.Goal?.number;
         const casesGivenAway = props?.["Cases Given Away"]?.number;
+        const logoFile = props?.Logo?.files?.[0];
+        const logoUrl: string | null =
+          logoFile?.type === "external"
+            ? logoFile.external?.url ?? null
+            : logoFile?.file?.url ?? null;
         siteText = {
           header: header?.trim() ? header : DEFAULT_SITE_TEXT.header,
           subheader: subheader?.trim() ? subheader : DEFAULT_SITE_TEXT.subheader,
@@ -101,6 +117,7 @@ export async function getIThirstData(): Promise<{
             typeof casesGivenAway === "number" && casesGivenAway >= 0
               ? casesGivenAway
               : DEFAULT_SITE_TEXT.casesGivenAway,
+          logoUrl,
         };
         continue;
       }
@@ -108,13 +125,13 @@ export async function getIThirstData(): Promise<{
       const name =
         props?.Name?.title?.map((t: any) => t.plain_text).join("") ?? "Untitled";
       const cases = typeof props?.Cases?.number === "number" ? props.Cases.number : 0;
-      const tag: MemberTag =
-        props?.Tags?.select?.name === "Minister" ? "Minister" : "Lay Member";
+      const tag: MemberTag = props?.Tags?.select?.name ?? "Member";
+      const isMinister = tag.toLowerCase() === "minister";
       const dateGiven = props?.["Date Given"]?.date?.start ?? null;
       const notes =
         props?.Notes?.rich_text?.map((t: any) => t.plain_text).join("") ?? "";
 
-      donations.push({ id: page.id, name, cases, tag, dateGiven, notes });
+      donations.push({ id: page.id, name, cases, tag, isMinister, dateGiven, notes });
     }
 
     cursor = response.has_more ? (response.next_cursor ?? undefined) : undefined;

@@ -63,8 +63,8 @@ export default function Home() {
 
   const filtered = useMemo(() => {
     let list = donations;
-    if (filter === "excluding") list = list.filter((d) => d.tag !== "Minister");
-    if (filter === "only") list = list.filter((d) => d.tag === "Minister");
+    if (filter === "excluding") list = list.filter((d) => !d.isMinister);
+    if (filter === "only") list = list.filter((d) => d.isMinister);
 
     return [...list].sort((a, b) => {
       switch (sort) {
@@ -87,14 +87,16 @@ export default function Home() {
   const totals = useMemo(() => {
     const totalCases = filtered.reduce((sum, d) => sum + d.cases, 0);
     const donorCount = filtered.length;
-    const layCases = donations
-      .filter((d) => d.tag === "Lay Member")
-      .reduce((sum, d) => sum + d.cases, 0);
+    const nonMinisters = donations.filter((d) => !d.isMinister);
+    const layCases = nonMinisters.reduce((sum, d) => sum + d.cases, 0);
     const ministerCases = donations
-      .filter((d) => d.tag === "Minister")
+      .filter((d) => d.isMinister)
       .reduce((sum, d) => sum + d.cases, 0);
     const allTimeTotal = layCases + ministerCases;
-    return { totalCases, donorCount, layCases, ministerCases, allTimeTotal };
+    // Reflects whatever tag text is actually used in Notion (e.g. "Lay
+    // Member", "Member") instead of a hardcoded label.
+    const layLabel = nonMinisters[0]?.tag ?? "Members";
+    return { totalCases, donorCount, layCases, ministerCases, allTimeTotal, layLabel };
   }, [filtered, donations]);
 
   return (
@@ -120,6 +122,7 @@ export default function Home() {
             total={totals.allTimeTotal}
             layCases={totals.layCases}
             ministerCases={totals.ministerCases}
+            layLabel={totals.layLabel}
             goal={siteText.goal}
             casesGivenAway={siteText.casesGivenAway}
           />
@@ -129,7 +132,7 @@ export default function Home() {
           <div
             role="tablist"
             aria-label="Filter by tag"
-            className="inline-flex rounded-full border border-mist-200 bg-white p-1 text-sm dark:border-mist-700 dark:bg-mist-800"
+            className="inline-flex rounded-lg border border-mist-200 bg-white p-1 text-sm dark:border-mist-700 dark:bg-mist-800"
           >
             {FILTERS.map((f) => (
               <button
@@ -137,7 +140,7 @@ export default function Home() {
                 role="tab"
                 aria-selected={filter === f.id}
                 onClick={() => setFilter(f.id)}
-                className={`rounded-full px-4 py-1.5 font-medium transition-colors ${
+                className={`rounded-md px-4 py-1.5 font-medium transition-colors ${
                   filter === f.id
                     ? "bg-steel-500 text-white shadow-sm"
                     : "text-mist-600 hover:text-ink-900 dark:text-mist-300 dark:hover:text-white"
@@ -200,9 +203,31 @@ export default function Home() {
           shown · Data synced from DB
         </p>
 
-        <BrandMark />
+        <BrandMark logoUrl={siteText.logoUrl} />
+
+        <MandateVerse />
       </div>
     </main>
+  );
+}
+
+function MandateVerse() {
+  return (
+    <section className="mx-auto mt-10 max-w-xl text-center">
+      <p className="font-display text-xs font-bold uppercase tracking-[0.2em] text-mist-400 dark:text-mist-500">
+        Our Mandate — Matthew 25:31–40 (KJV)
+      </p>
+      <blockquote className="mt-3 text-sm italic leading-relaxed text-mist-500 dark:text-mist-400">
+        &ldquo;For I was an hungred, and ye gave me meat: I was thirsty, and
+        ye gave me drink: I was a stranger, and ye took me in: Naked, and ye
+        clothed me: I was sick, and ye visited me: I was in prison, and ye
+        came unto me.&rdquo;
+        <span className="mt-2 block not-italic text-xs text-mist-400 dark:text-mist-500">
+          &ldquo;Inasmuch as ye have done it unto one of the least of these my
+          brethren, ye have done it unto me.&rdquo; — v.40
+        </span>
+      </blockquote>
+    </section>
   );
 }
 
@@ -232,7 +257,7 @@ function DonationTable({ donations }: { donations: Donation[] }) {
                 {d.name}
               </td>
               <td className="px-5 py-3">
-                <TagPill tag={d.tag} />
+                <TagPill tag={d.tag} isMinister={d.isMinister} />
               </td>
               <td className="px-5 py-3 text-right font-display font-bold text-steel-600 dark:text-steel-300">
                 {d.cases}
@@ -248,8 +273,7 @@ function DonationTable({ donations }: { donations: Donation[] }) {
   );
 }
 
-function TagPill({ tag }: { tag: MemberTag }) {
-  const isMinister = tag === "Minister";
+function TagPill({ tag, isMinister }: { tag: MemberTag; isMinister: boolean }) {
   return (
     <span
       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
