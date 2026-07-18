@@ -5,6 +5,7 @@ import type { Donation, MemberTag, SiteText } from "@/lib/notion";
 import { DEFAULT_SITE_TEXT } from "@/lib/notion";
 import WaveStat from "./components/WaveStat";
 import ThemeToggle from "./components/ThemeToggle";
+import BrandMark from "./components/BrandMark";
 
 type FilterMode = "all" | "excluding" | "only";
 type SortMode = "name" | "cases-desc" | "cases-asc" | "newest" | "oldest";
@@ -120,6 +121,7 @@ export default function Home() {
             layCases={totals.layCases}
             ministerCases={totals.ministerCases}
             goal={siteText.goal}
+            casesGivenAway={siteText.casesGivenAway}
           />
         </section>
 
@@ -195,8 +197,10 @@ export default function Home() {
 
         <p className="mt-10 text-center text-xs text-mist-400 dark:text-mist-500">
           {totals.donorCount} {totals.donorCount === 1 ? "entry" : "entries"}{" "}
-          shown · Data synced from Notion
+          shown · Data synced from DB
         </p>
+
+        <BrandMark />
       </div>
     </main>
   );

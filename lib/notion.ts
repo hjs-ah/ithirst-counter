@@ -15,6 +15,7 @@ export interface SiteText {
   header: string;
   subheader: string;
   goal: number;
+  casesGivenAway: number;
 }
 
 export const DEFAULT_SITE_TEXT: SiteText = {
@@ -22,6 +23,7 @@ export const DEFAULT_SITE_TEXT: SiteText = {
   subheader:
     "Every case logged here reaches the street through iThirst. Filter by who gave, sort by what matters, and watch the total rise.",
   goal: 150,
+  casesGivenAway: 0,
 };
 
 function getClient() {
@@ -90,10 +92,15 @@ export async function getIThirstData(): Promise<{
           ?.map((t: any) => t.plain_text)
           .join("");
         const goal = props?.Goal?.number;
+        const casesGivenAway = props?.["Cases Given Away"]?.number;
         siteText = {
           header: header?.trim() ? header : DEFAULT_SITE_TEXT.header,
           subheader: subheader?.trim() ? subheader : DEFAULT_SITE_TEXT.subheader,
           goal: typeof goal === "number" && goal > 0 ? goal : DEFAULT_SITE_TEXT.goal,
+          casesGivenAway:
+            typeof casesGivenAway === "number" && casesGivenAway >= 0
+              ? casesGivenAway
+              : DEFAULT_SITE_TEXT.casesGivenAway,
         };
         continue;
       }

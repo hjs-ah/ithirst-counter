@@ -3,14 +3,22 @@ interface WaveStatProps {
   layCases: number;
   ministerCases: number;
   goal: number;
+  casesGivenAway: number;
 }
 
-export default function WaveStat({ total, layCases, ministerCases, goal }: WaveStatProps) {
+export default function WaveStat({
+  total,
+  layCases,
+  ministerCases,
+  goal,
+  casesGivenAway,
+}: WaveStatProps) {
   const layShare = total > 0 ? (layCases / total) * 100 : 50;
   const ministerShare = total > 0 ? (ministerCases / total) * 100 : 50;
   const goalPercent = goal > 0 ? Math.round((total / goal) * 100) : 0;
   const goalProgressWidth = Math.min(100, goalPercent);
   const goalReached = total >= goal;
+  const inStock = Math.max(0, total - casesGivenAway);
 
   return (
     <div className="rounded-3xl border border-mist-200 bg-white p-6 shadow-sm dark:border-mist-700 dark:bg-mist-800 sm:p-8">
@@ -72,6 +80,26 @@ export default function WaveStat({ total, layCases, ministerCases, goal }: WaveS
         <div className="mt-3 flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-mist-500 dark:text-mist-400">
           <LegendDot color="bg-wave-DEFAULT" label="Lay members" value={layCases} />
           <LegendDot color="bg-wave-dark" label="Ministers" value={ministerCases} />
+        </div>
+      </div>
+
+      {/* Given away vs. still in stock */}
+      <div className="mt-6 grid grid-cols-2 gap-3 border-t border-mist-100 pt-5 dark:border-mist-700/60">
+        <div className="rounded-2xl bg-mist-50 px-4 py-3 dark:bg-mist-900/40">
+          <span className="block text-xs font-medium text-mist-500 dark:text-mist-400">
+            Cases given away
+          </span>
+          <span className="font-display text-xl font-bold tabular-nums text-ink-900 dark:text-mist-50">
+            {casesGivenAway.toLocaleString()}
+          </span>
+        </div>
+        <div className="rounded-2xl bg-mist-50 px-4 py-3 dark:bg-mist-900/40">
+          <span className="block text-xs font-medium text-mist-500 dark:text-mist-400">
+            Still in stock
+          </span>
+          <span className="font-display text-xl font-bold tabular-nums text-ink-900 dark:text-mist-50">
+            {inStock.toLocaleString()}
+          </span>
         </div>
       </div>
     </div>

@@ -29,6 +29,7 @@ Schema:
 | `Header`      | Text   | Only used on the `Site Text` row    |
 | `Subheader`   | Text   | Only used on the `Site Text` row    |
 | `Goal`        | Number | Only used on the `Site Text` row \u2014 the case-count goal shown in the progress bar |
+| `Cases Given Away` | Number | Only used on the `Site Text` row \u2014 running total of cases distributed on the street |
 
 It's pre-loaded with 3 sample donation rows so you can confirm the site
 works — delete them once you add real entries.
@@ -46,6 +47,19 @@ exactly what shows at the top of the site:
 - **Goal** → `150` — the target shown in the progress bar under the total.
   Set it to whatever the current campaign goal is; the bar and percentage
   update automatically.
+- **Cases Given Away** → running total of cases actually distributed on
+  the street (separate from cases donated). Update it manually as
+  outreach happens; "Still in stock" on the site is calculated as
+  total donated minus this number.
+
+## Reusable template piece: the brand mark
+
+`app/components/BrandMark.tsx` renders the Verity wordmark
+(`public/brand/verity-mark.png`) centered at the bottom of the page at 50%
+opacity, inverted to white automatically in dark mode. Both files are
+meant to be copied as-is into future Verity/VOW Center projects to keep a
+consistent footer treatment — just drop the two files in and add
+`<BrandMark />` wherever the page ends.
 
 Edit those two fields any time and the live site picks it up within about
 60 seconds — no redeploy needed. This row is excluded from the donation
